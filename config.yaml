@@ -15,64 +15,64 @@
   children:
   - name: "Stone Age"
     description: ""
-    id: franz_advancements:mining/stone_age
+    id: stone_age
     task: in_inv(minecraft:cobblestone)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:wooden_pickaxe
-    parent: franz_advancements:mining/root
+    parent: root
 
   - name: "Getting an Upgrade"
     description: "Get a stone pick"
-    id: franz_advancements:mining/getting_an_upgrade
-    parent: franz_advancements:mining/stone_age
+    id: getting_an_upgrade
+    parent: stone_age
     task: in_inv(minecraft:stone_pickaxe)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:stone_pickaxe
 
   - name: "Aww it broke"
     description: "Break a stone pick"
-    id: franz_advancements:mining/aww_it_broke
-    parent: franz_advancements:mining/stone_age
+    id: aww_it_broke
+    parent: stone_age
     task: break_tool(minecraft:stone_pickaxe)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:stick
 
   - name: "Caveman"
     description: ""
-    id: franz_advancements:mining/caveman
-    parent: franz_advancements:mining/stone_age
+    id: caveman
+    parent: stone_age
     task: enter_underground #XXX
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:stone
 
   - name: "Stone Champion"
     description: ""
-    id: franz_advancements:mining/stone_champion
-    parent: franz_advancements:mining/getting_an_upgrade
+    id: stone_champion
+    parent: getting_an_upgrade
     task: in_inv(minecraft:stone_pickaxe, minecraft:stone_shovel, mincraft:stone_axe, mincraft:stone_hoe, minecraft:stone_sword)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:stone_shovel
 
   - name: "Coal Manager"
     description: ""
-    id: franz_advancements:mining/coal_manager
-    parent: franz_advancements:mining/getting_an_upgrade
+    id: coal_manager
+    parent: getting_an_upgrade
     task: in_inv(minecraft:coal)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:coal
 
   - name: "Raw Hardware"
     description: ""
-    id: franz_advancements:mining/raw_hardware
-    parent: franz_advancements:mining/getting_an_upgrade
+    id: raw_hardware
+    parent: getting_an_upgrade
     task: in_inv(minecraft:iron_ore)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:iron_ore
   
   - name: "Also Broke"
     description: ""
-    id: franz_advancements:mining/also_broke
-    parent: franz_advancements:mining/stone_champion
+    id: also_broke
+    parent: stone_champion
     task: break_tool(minecraft:stone_pickaxe, minecraft:stone_shovel, mincraft:stone_axe, mincraft:stone_hoe, minecraft:stone_sword)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     display: normal
@@ -80,32 +80,32 @@
 
   - name: "A lot to mine"
     description: ""
-    id: franz_advancements:mining/a_lot_to_mine
-    parent: franz_advancements:mining/stone_champion
+    id: a_lot_to_mine
+    parent: stone_champion
     task: in_inv(minecraft:cobblestone*27*64)
     features: {display: "goal", pop_up: true, chat: false, hidden: false}
     icon: minecraft:cobblestone
 
   - name: "Flint"
     description: ""
-    id: franz_advancements:mining/flint
-    parent: franz_advancements:mining/stone_champion
+    id: flint
+    parent: stone_champion
     task: in_inv(minecraft:flint)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:flint
 
   - name: "Burning"
     description: ""
-    id: franz_advancements:mining/burning
-    parent: franz_advancements:mining/flint
+    id: burning
+    parent: flint
     task: in_inv(minecraft:flint_and_steel)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:flint_and_steel
 
   - name: "Lucky Man"
     description: ""
-    id: franz_advancements:mining/lucky_man
-    parent: franz_advancements:mining/flint
+    id: lucky_man
+    parent: flint
     task: in_inv(minecraft:flint*64)
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:flint
