@@ -22,6 +22,34 @@ class Mcid():
         return output
 
 class Remapper():
+    remapping_version_to_pack_mcmeta = {
+        "1.16.5": 6
+    }
+    def remap_version(version) -> int:
+        if version in Remapper.remapping_version_to_pack_mcmeta:
+            return Remapper.remapping_version_to_pack_mcmeta[version]
+        else:
+            return 6
+
+    def remap_pack_mcmeta(pack):
+        version = "1.16.5"
+        if "version" in pack:
+            version = pack.pop("version")
+        description = ""
+        if "description" in pack:
+            description = pack.pop("description")
+        return (
+            "pack.mcmeta",
+            json.dumps({
+                    "pack": {
+                        "pack_format": Remapper.remap_version(version),
+                        "description": description
+                    }
+                },
+                indent = 4
+            )
+        )
+
     remapping_category_to_child = {
         "category": "name",
         "id": "id",
@@ -124,6 +152,9 @@ class Remapper():
             filename = Mcid(obj.pop("id")).getFilename()
         return (filename, obj)
 
+    def remap_obj_to_json_dump(obj):
+        return obj[0], json.dumps(obj[1], indent = 4)
+
 class Task():
     # basically AND grouping of OR groups
     # "criteria": {
@@ -138,13 +169,16 @@ class Task():
 
 with open("config.yaml") as file:
     try:
-        data = yaml.safe_load(file)
-    except:
+        pack_mcmeta, data = yaml.safe_load_all(file)
+    except Exception as e:
         print("yaml.safe_load crashed!!!!")
+        print(e)
+        exit(1)
     finally:
         file.close()
 
 entries = []
+
 for category in data:
     entries.append(
         Remapper.remap_category(category)
@@ -159,8 +193,16 @@ for i in range(len(entries)):
     entries[i] = Remapper.remap_names(entries[i])
     entries[i] = Remapper.remap_task(entries[i])
     entries[i] = Remapper.remap_id_to_file(entries[i])
-print(json.dumps(entries, indent=4))
-   
+    entries[i] = Remapper.remap_obj_to_json_dump(entries[i])
+
+entries.append(
+    Remapper.remap_pack_mcmeta(pack_mcmeta)
+)
+
+for i, j in entries:
+    print(i)
+    print(j)
+#print(json.dumps(entries, indent = 4))
 default_out = '''{
     {parent}
     "display": {

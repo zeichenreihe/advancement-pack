@@ -1,4 +1,7 @@
 # vim: set noai nosi ts=2 sw=2 syntax=yaml
+version: "1.16.5"
+description: "franz custom advancements for mc 1.16.5"
+---
 - category: "Mining"
   description: "A story underground"
   id: franz_advancements:mining
