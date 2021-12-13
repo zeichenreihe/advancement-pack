@@ -161,11 +161,50 @@ class Task():
     #   "foo": {
     #       "trigger": "
     def __init__(self, obj):
-        self.obj = obj
+        self.criteria = []
+        ctr = 0
+        if isinstance(obj, list):
+            def criteria_writer(name, obj) -> int:
+                add = obj.pop(name)
+                if add not in self.criteria:
+                    self.criteria.append(add)
+                index = self.criteria.index(add)
+                return index
+            if "or" in obj[0]:
+                obj = [{"and": obj}]
+            for i in obj:
+                if "and" in i:
+                    if isinstance(i["and"], list):
+                        for j in i["and"]:
+                            if "or" in j:
+                                j["or"] = criteria_writer("or", j)
+                    else:
+                        i["and"] = criteria_writer("and", i)
+        else:
+            self.criteria.append(obj)
+            obj = [0]
+
+        for i in range(len(obj)):
+            if isinstance(obj[i], dict):
+                if isinstance(obj[i]["and"], list):
+                    for j in range(len(obj[i]["and"])):
+                        if isinstance(obj[i]["and"][j], dict):
+                               obj[i]["and"][j] = str(obj[i]["and"][j]["or"])
+                obj[i] = obj[i]["and"]
+            if not (isinstance(obj[i], str) or isinstance(obj[i], list)):
+                obj[i] = str(obj[i])
+            if isinstance(obj[i], str):
+                obj[i] = [obj[i]]
+
+        self.requirements = obj
+
+#       for i in self.criteria:
+#           i = Task.convert
     def get_criteria(self):
-        return self.obj
+        print(self.criteria)
+        return self.criteria
     def get_requirements(self):
-        return self.obj
+        return self.requirements
 
 with open("config.yaml") as file:
     try:

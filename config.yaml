@@ -113,7 +113,50 @@ description: "franz custom advancements for mc 1.16.5"
     features: {display: "task", pop_up: true, chat: false, hidden: false}
     icon: minecraft:flint
 
-      #- category: "Redstone"
-      #  children:
-      #  - name: "Shiny"
-      #    description: ""
+- category: "Redstone"
+  description: "A story full of blockupdates and blockevents"
+  id: franz_advancements:redstone
+  task: in_inv(minecraft:redstone_dust)
+  features: {display: "task", pop_up: false, chat: false, hidden: false}
+  icon: "minecraft:sticky_piston"
+  background: "minecraft:textures/block/redstone_ore.png"
+
+  children:
+  - name: "Compact it"
+    description: "Get a rs block!"
+    id: compact_it
+    task: in_inv(minecraft:redstone_block)
+    features: {display: "task", pop_up: true, chat: false, hidden: false}
+    icon: minecraft:redstone_block
+    parent: root
+
+  - name: "Shiny"
+    description: "Use your silktouch pick!"
+    id: shiny
+    task: in_inv(minecraft:redstone_ore)
+    features: {display: "task", pop_up: true, chat: false, hidden: false}
+    icon: minecraft:redstone_ore
+    parent: root
+
+  - name: "DEBB"
+    description: "Get a stack of dragon eggs"
+    id: debb
+    task:
+      - and:
+        - or: in_inv(minecraft:dragon_egg*64)
+        - or: in_inv(minecraft:bedrock*64)
+      - and: in_inv(minecraft:piston*64)
+      - and: in_inv(minecraft:bedrock*64)
+    features: {display: "task", pop_up: true, chat: false, hidden: false}
+    icon: minecraft:dragon_egg
+    parent: root
+
+  - name: "DEBB_"
+    description: "Get a stack of dragon eggs"
+    id: debb_
+    task:
+      - or: in_inv(minecraft:dragon_egg*64)
+      - or: in_inv(minecraft:bedrock*64)
+    features: {display: "task", pop_up: true, chat: false, hidden: false}
+    icon: minecraft:dragon_egg
+    parent: root
