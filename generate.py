@@ -142,7 +142,10 @@ class Main:
                 if "in_inv" in advancement["task"][0]:
                     advancement["icon"] = advancement["task"][0]["in_inv"]
                     if isinstance(advancement["icon"], list):
+                        if len(advancement["icon"][0].keys()) == 0:
+                            raise Exception("no item in in_inv: \n\n" + str(advancement["icon"]))
                         advancement["icon"] = list(advancement["icon"][0].keys())[0]
+            raise_not_in(advancement, "icon")
 
             ctr = 0
             if "criteria" not in advancement:
@@ -160,8 +163,9 @@ class Main:
                     ctr += 1
             del ctr, advancement["task"]
 
-            raise_not_in(advancement, "icon")
-
+            if "background" in advancement:
+                if not advancement["background"].startswith("minecraft:textures"):
+                    advancement["background"] = "minecraft:textures/block/" + advancement["background"] + ".png"
 
             if "nbt" in advancement and isinstance(advancement["nbt"], dict):
                 advancement["nbt"] = str(advancement["nbt"]).replace("'", "\"")
