@@ -1,289 +1,210 @@
-import yaml
-import json
+#!/usr/share/python
 
-class Mcid():
-    # namespace:name
-    # namespace:folder/name
-    # namespace:folder/folder/name
-    def __init__(self, identifier :str):
-        self.namespace, rest = identifier.split(":")
-        self.location = rest.split("/")
-        self.name = self.location.pop(-1)
+import json, yaml, re, os
+from lib.dict_tools import DictRemapper
 
-    def getFilename(self, subfolder="", fileending=".json") -> str:
-        output = "data/" + self.namespace + "/"
-        if subfolder != "":
-            output = output + subfolder + "/"
-        
-        for i in self.location:
-            output = output + i + "/"
-
-        output = output + self.name + fileending
-        return output
-
-class Remapper():
-    remapping_version_to_pack_mcmeta = {
-        "1.16.5": 6
-    }
-    def remap_version(version) -> int:
-        if version in Remapper.remapping_version_to_pack_mcmeta:
-            return Remapper.remapping_version_to_pack_mcmeta[version]
+class TaskConverter:
+    def in_inv(obj):
+        if isinstance(obj["in_inv"], str):
+            items = [obj.pop("in_inv")]
         else:
-            return 6
+            items = obj.pop("in_inv")
 
-    def remap_pack_mcmeta(pack):
-        version = "1.16.5"
-        if "version" in pack:
-            version = pack.pop("version")
-        description = ""
-        if "description" in pack:
-            description = pack.pop("description")
-        return (
-            "pack.mcmeta",
-            json.dumps({
-                    "pack": {
-                        "pack_format": Remapper.remap_version(version),
-                        "description": description
-                    }
-                },
-                indent = 4
-            )
-        )
+        for i in range(len(items)):
+            if isinstance(items[i], str):
+                items[i] = {items[i]: 1}
+            item = list(items[i].keys())[0]
+            count = items[i].pop(item)
+            items[i] = {"item": item}
+            items[i].update({"count": count})
 
-    remapping_category_to_child = {
-        "category": "name",
-        "id": "id",
-        "description": "description",
-        "task": "task",
-        "features": "features",
-        "icon": "icon",
-        "nbt": "nbt",
-        "nbt_str": "nbt_str",
-        "background": "background"
-    }
-    def remap_category(category):
-        out_obj = {}
-        for i in Remapper.remapping_category_to_child.keys():
-            if i in category:
-                out_obj[Remapper.remapping_category_to_child[i]] = category[i]
-        if "id" in out_obj:
-           out_obj["id"] += "/root"
-        return out_obj
+        return {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": items
+            }
+        }
 
-    def remap_child_id(child, category):
-        if "id" in child and "id" in category:
-            child["id"] = category["id"] + "/" + child["id"]
-        if "parent" in child and "id" in category:
-            child["parent"] = category["id"] + "/" + child["parent"]
-        return child
-
-    remapping_features_to_child = {
-        "display": "frame",
-        "pop_up": "show_toast",
-		"chat": "announce_to_chat",
-        "hidden": "hidden"
-    }
-    def remap_features(obj):
-        features = {} 
-        if "features" in obj:
-            features = obj.pop("features")
-        for i in Remapper.remapping_features_to_child.keys():
-            if i in features:
-                obj[Remapper.remapping_features_to_child[i]] = features[i]
-        return obj
-
-    def remap_nbt(obj):
-        if "nbt" in obj:
-            obj["nbt"] = str(obj["nbt"]).replace("'", "\\\"")
-        if "nbt_str" in obj:
-            obj["nbt"] = obj.pop("nbt_str")
-        return obj
-
-    remapping_names = {
-        "background": ["display", "background"],
-        "icon": ["display", "icon", "item"],
-        "nbt": ["display", "icon", "nbt"],
-        "name": ["display", "title"],
-        "description": ["display", "description"],
-        "frame": ["display", "frame"],
-        "show_toast": ["display", "show_toast"],
-        "announce_to_chat": ["display", "announce_to_chat"],
-        "hidden": ["display", "hidden"],
-        "parent": ["parent"]
-    }
-    def remap_names(obj):
-        def dict_gen(array :list, data, level :int = 0):
-            if level < len(array):
-                return {
-                    array[level]: dict_gen(array, data, level + 1)
-                }
-            else:
-                return data
-
-        def deepupdate(a, b):
-            for i in b.keys():
-                if i not in a:
-                    a[i] = b[i]
-                elif isinstance(a[i], dict):
-                    deepupdate(a[i], b[i]) 
-            return a
-
-        out_obj= {}
-        for i in obj.keys():
-            if i in Remapper.remapping_names:
-                out_obj = deepupdate(
-                        out_obj,
-                        dict_gen(Remapper.remapping_names[i], obj[i])
-                )
-            else:
-                out_obj[i] = obj[i]
-        return out_obj
-   
-    def remap_task(obj):
-        if "task" in obj:
-            task = Task(obj.pop("task"))
-            obj["criteria"] = task.get_criteria()
-            obj["requirements"] = task.get_requirements()
-        return obj
-
-    def remap_id_to_file(obj):
-        filename = ""
-        if "id" in obj:
-            filename = Mcid(obj.pop("id")).getFilename()
-        return (filename, obj)
-
-    def remap_obj_to_json_dump(obj):
-        return obj[0], json.dumps(obj[1], indent = 4)
-
-class Task():
-    # basically AND grouping of OR groups
-    # "criteria": {
-    #   "foo": {
-    #       "trigger": "
-    def __init__(self, obj):
-        self.criteria = []
-        ctr = 0
-        if isinstance(obj, list):
-            def criteria_writer(name, obj) -> int:
-                add = obj.pop(name)
-                if add not in self.criteria:
-                    self.criteria.append(add)
-                index = self.criteria.index(add)
-                return index
-            if "or" in obj[0]:
-                obj = [{"and": obj}]
-            for i in obj:
-                if "and" in i:
-                    if isinstance(i["and"], list):
-                        for j in i["and"]:
-                            if "or" in j:
-                                j["or"] = criteria_writer("or", j)
-                    else:
-                        i["and"] = criteria_writer("and", i)
-        else:
-            self.criteria.append(obj)
-            obj = [0]
-
-        for i in range(len(obj)):
-            if isinstance(obj[i], dict):
-                if isinstance(obj[i]["and"], list):
-                    for j in range(len(obj[i]["and"])):
-                        if isinstance(obj[i]["and"][j], dict):
-                               obj[i]["and"][j] = str(obj[i]["and"][j]["or"])
-                obj[i] = obj[i]["and"]
-            if not (isinstance(obj[i], str) or isinstance(obj[i], list)):
-                obj[i] = str(obj[i])
-            if isinstance(obj[i], str):
-                obj[i] = [obj[i]]
-
-        self.requirements = obj
-
-#       for i in self.criteria:
-#           i = Task.convert
-    def get_criteria(self):
-        print(self.criteria)
-        return self.criteria
-    def get_requirements(self):
-        return self.requirements
-
-with open("config.yaml") as file:
-    try:
-        pack_mcmeta, data = yaml.safe_load_all(file)
-    except Exception as e:
-        print("yaml.safe_load crashed!!!!")
-        print(e)
-        exit(1)
-    finally:
-        file.close()
-
-entries = []
-
-for category in data:
-    entries.append(
-        Remapper.remap_category(category)
-    )
-    if "children" in category:
-        for child in category["children"]:
-            entries.append(Remapper.remap_child_id(child, category))
-
-for i in range(len(entries)):
-    entries[i] = Remapper.remap_features(entries[i])
-    entries[i] = Remapper.remap_nbt(entries[i])
-    entries[i] = Remapper.remap_names(entries[i])
-    entries[i] = Remapper.remap_task(entries[i])
-    entries[i] = Remapper.remap_id_to_file(entries[i])
-    entries[i] = Remapper.remap_obj_to_json_dump(entries[i])
-
-entries.append(
-    Remapper.remap_pack_mcmeta(pack_mcmeta)
-)
-
-for i, j in entries:
-    print(i)
-    print(j)
-#print(json.dumps(entries, indent = 4))
-default_out = '''{
-    {parent}
-    "display": {
-        {background}
-		"icon": {
-            {nbt}
-			"item": "{item}"
-        },
-		"title": "{title}",
-		"description": "{description}",
-		"frame": "{frame}",
-		"show_toast": {show_toast},
-		"announce_to_chat": {announce_to_chat},
-		"hidden": {hidden}
-    },
-	"criteria": {
-		"get_stone": {
-			"trigger": "minecraft:inventory_changed",
+    def break_tool(obj):
+        return {
+			"trigger": "minecraft:item_durability_changed",
 			"conditions": {
-				"items": [
-					{
-						"item": "minecraft:stone"
-					}
-				]
-			}
-		},
-		"cobblestone": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"item": "minecraft:stone"
-					}
-				]
-			}
+				"item": {
+					"item": obj.pop("break_tool")
+				},
+				"durability": {
+					"max": 1
+				}
+ 			}
 		}
 
-	},
-	"requirements": [
-		[
-			"get_stone",
-            "cobblestone"
-		]
-	]
-}'''
+    callback_table = {
+        "in_inv": in_inv,
+        "break_tool": break_tool
+    }
+    
+    def convert(task, index = 0):
+        for i in TaskConverter.callback_table:
+            if i in task:
+                return TaskConverter.callback_table[i](task)
+        if (not "trigger" in task) or (not "conditions" in task):
+            raise Exception("task not matched by TaskConverter.callback_table,\n" +
+                " and no \"criteria\" and \"trigger\" in it: \n\n" + str(task))
+        return task
+
+
+class Default:
+    root = {
+        "frame": "task",
+        "pop_up": False,
+        "chat": False,
+        "hidden": False
+    }
+    task = {
+        "frame": "task",
+        "pop_up": True,
+        "chat": True,
+        "hidden": False
+    }
+
+class Main:
+    def pprint(obj):
+        print(json.dumps(obj, indent = 4, sort_keys = True))
+
+    def parser(data):
+        def raise_not_in(obj, name, comment = ""):
+            if comment != "":
+                comment = " " + comment
+            if name not in obj:
+                raise Exception("no " + str(name) + " found" + comment + "\n\n" + str(obj))
+
+        def id_to_filename(identifier):
+            namespace, location = identifier.split(":")
+            return "./data/" + namespace + "/advancements/" + location + ".json"
+            
+        advancements = []
+        pack_mcmeta = 0
+        for i in range(len(data)):
+            if "pack" in data[i]:
+                pack_mcmeta = i
+        pack_mcmeta = data.pop(pack_mcmeta)
+
+        for i in data:
+            raise_not_in(i, "category")
+
+            category = i["category"]
+            category_root = ""
+            for element in category:
+                if "root" in element:
+                    raise_not_in(element, "root")
+                    raise_not_in(element, "id", "(in a root element)")
+
+                    element["name"] = element.pop("root")
+                    category_root = element["id"]
+                    element["id"] = "root"
+
+                    for name, value in Default.root.items():
+                        if name not in element: element[name] = value
+                else:
+                    for name, value in Default.task.items():
+                        if name not in element: element[name] = value
+
+            for element in category:
+                raise_not_in(element, "id")
+                element["id"] = category_root + "/" + element["id"]
+
+                if "parent" in element:
+                    element["parent"] = category_root + "/" + element["parent"]
+
+
+                advancements.append(element)
+
+        del data, category_root
+
+        remapper = DictRemapper({
+            "name":        "display/title",
+            "description": "display/description",
+            "icon":        "display/icon/item",
+            "nbt":         "display/icon/nbt",
+            "frame":       "display/frame",
+            "pop_up":      "display/show_toast",
+            "chat":        "display/announce_to_chat",
+            "hidden":      "display/hidden",
+            "background":  "display/background"
+        })
+
+        for advancement in advancements:
+            raise_not_in(advancement, "task")
+
+            if not isinstance(advancement["task"], list):
+                advancement["task"] = [advancement["task"]]
+            if "icon" not in advancement:
+                if "in_inv" in advancement["task"][0]:
+                    advancement["icon"] = advancement["task"][0]["in_inv"]
+
+            ctr = 0
+            if "criteria" not in advancement:
+                advancement["criteria"] = {}
+            if "requirements" not in advancement:
+                advancement["requirements"] =[]
+            for i in range(len(advancement["task"])):
+                task = advancement["task"][i]
+                advancement["requirements"].append([])
+                if not isinstance(task, list):
+                    task = [task]
+                for j in task:
+                    advancement["criteria"][str(ctr)] = TaskConverter.convert(j)
+                    advancement["requirements"][i].append(str(ctr))
+                    ctr += 1
+            del ctr, advancement["task"]
+
+            raise_not_in(advancement, "icon")
+
+
+            if "nbt" in advancement and isinstance(advancement["nbt"], dict):
+                advancement["nbt"] = str(advancement["nbt"]).replace("'", "\"")
+            elif "nbt_str" in advancement:
+                advancement["nbt"] = advancement.pop("nbt_str")
+            elif "nbt" in advancement and isinstance(advancement["nbt"], str):
+                pass
+
+        for i in range(len(advancements)):
+            advancements[i] = (
+                id_to_filename(advancements[i].pop("id")),
+                remapper.remap(advancements[i])
+            )
+
+        version = pack_mcmeta["pack"].pop("version")
+        pack_mcmeta["pack"]["pack_format"] = {
+            "1.16.5": 6
+        }[version]
+        advancements.append(["./pack.mcmeta", pack_mcmeta])
+        del pack_mcmeta, remapper
+        return advancements
+
+    def write(files):
+        def create_folder(file):
+            folder = "/".join(re.split("/", file)[:-1])
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+        for name, data in files:
+            create_folder(name)
+            with open(name, 'w') as f:
+                f.write(json.dumps(data, indent = 4))
+                f.close()
+                print(name)
+
+    def main(filename):
+        with open(filename) as f:
+            try:
+                data = yaml.safe_load(f)
+            except Exception as e:
+                print(e)
+            finally:
+                f.close()
+
+            files = Main.parser(data)
+            Main.write(files)
+
+Main.main("config.yaml")

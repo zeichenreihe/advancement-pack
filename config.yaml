@@ -1,162 +1,63 @@
 # vim: set noai nosi ts=2 sw=2 syntax=yaml
-version: "1.16.5"
-description: "franz custom advancements for mc 1.16.5"
----
-- category: "Mining"
-  description: "A story underground"
-  id: franz_advancements:mining
-  task: in_inv(minecraft:wooden_pickaxe)
-  features: {display: "task", pop_up: false, chat: false, hidden: false}
-  icon: "minecraft:netherite_pickaxe"
-#  nbt: "{\"Enchantments\":[{\"lvl\":1,\"id\":\"minecraft:mending\"}]}"
-  nbt:
-    Enchantments:
-      - lvl: 1
-      - id: "minecraft:mending"
-  background: "minecraft:textures/gui/advancements/backgrounds/stone.png"
 
-  children:
+
+- pack:
+    version: 1.16.5
+    description: "franz custom advancements for mc 1.16.5"
+
+- category:
+  - root: "Mining"
+    description: "A story underground"
+    id: franz_advancements:mining
+    task:
+      - in_inv: minecraft:wooden_pickaxe
+    icon: minecraft:netherite_pickaxe
+    nbt:
+      Enchantments:
+        - lvl: 1
+        - id: "minecraft:mending"
+    background: "minecraft:textures/gui/advancements/backgrounds/stone.png"
+
   - name: "Stone Age"
     description: ""
     id: stone_age
-    task: in_inv(minecraft:cobblestone)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
+    task:
+      - trigger: minecraft:inventory_changed
+        conditions:
+          items:
+            - item: minecraft:bedrock
+              count: 64
+      - in_inv: minecraft:bedrock
+      - in_inv:
+        - minecraft:bedrock: 64
+        - minecraft:cobblestone: 32
+        - minecraft:stone_stairs
+      - break_tool: minecraft:stone_pickaxe
     icon: minecraft:wooden_pickaxe
     parent: root
+#   frame: "task"
+#   pop_up: true
+#   chat: true
+#   hidden: false
 
-  - name: "Getting an Upgrade"
-    description: "Get a stone pick"
-    id: getting_an_upgrade
-    parent: stone_age
-    task: in_inv(minecraft:stone_pickaxe)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:stone_pickaxe
+- category:
+  - root: "Redstone"
+    description: "A story full of blockupdates and blockevents"
+    id: franz_advancements:redstone
+    task:
+      - in_inv: minecraft:redstone
+    icon: "minecraft:sticky_piston"
+    background: "minecraft:textures/block/redstone_ore.png"
 
-  - name: "Aww it broke"
-    description: "Break a stone pick"
-    id: aww_it_broke
-    parent: stone_age
-    task: break_tool(minecraft:stone_pickaxe)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:stick
-
-  - name: "Caveman"
-    description: ""
-    id: caveman
-    parent: stone_age
-    task: enter_underground #XXX
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:stone
-
-  - name: "Stone Champion"
-    description: ""
-    id: stone_champion
-    parent: getting_an_upgrade
-    task: in_inv(minecraft:stone_pickaxe, minecraft:stone_shovel, mincraft:stone_axe, mincraft:stone_hoe, minecraft:stone_sword)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:stone_shovel
-
-  - name: "Coal Manager"
-    description: ""
-    id: coal_manager
-    parent: getting_an_upgrade
-    task: in_inv(minecraft:coal)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:coal
-
-  - name: "Raw Hardware"
-    description: ""
-    id: raw_hardware
-    parent: getting_an_upgrade
-    task: in_inv(minecraft:iron_ore)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:iron_ore
-  
-  - name: "Also Broke"
-    description: ""
-    id: also_broke
-    parent: stone_champion
-    task: break_tool(minecraft:stone_pickaxe, minecraft:stone_shovel, mincraft:stone_axe, mincraft:stone_hoe, minecraft:stone_sword)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    display: normal
-    icon: minecraft:stick
-
-  - name: "A lot to mine"
-    description: ""
-    id: a_lot_to_mine
-    parent: stone_champion
-    task: in_inv(minecraft:cobblestone*27*64)
-    features: {display: "goal", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:cobblestone
-
-  - name: "Flint"
-    description: ""
-    id: flint
-    parent: stone_champion
-    task: in_inv(minecraft:flint)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:flint
-
-  - name: "Burning"
-    description: ""
-    id: burning
-    parent: flint
-    task: in_inv(minecraft:flint_and_steel)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:flint_and_steel
-
-  - name: "Lucky Man"
-    description: ""
-    id: lucky_man
-    parent: flint
-    task: in_inv(minecraft:flint*64)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:flint
-
-- category: "Redstone"
-  description: "A story full of blockupdates and blockevents"
-  id: franz_advancements:redstone
-  task: in_inv(minecraft:redstone_dust)
-  features: {display: "task", pop_up: false, chat: false, hidden: false}
-  icon: "minecraft:sticky_piston"
-  background: "minecraft:textures/block/redstone_ore.png"
-
-  children:
   - name: "Compact it"
     description: "Get a rs block!"
     id: compact_it
-    task: in_inv(minecraft:redstone_block)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:redstone_block
-    parent: root
-
-  - name: "Shiny"
-    description: "Use your silktouch pick!"
-    id: shiny
-    task: in_inv(minecraft:redstone_ore)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
+    task:
+      - - in_inv: minecraft:redstone_ore
+        - break_tool: minecraft:stone_sword
+      - - in_inv: minecraft:redstone_block
+        - break_tool: minecraft:netherite_pickaxe
     icon: minecraft:redstone_ore
     parent: root
+    hidden: true
 
-  - name: "DEBB"
-    description: "Get a stack of dragon eggs"
-    id: debb
-    task:
-      - and:
-        - or: in_inv(minecraft:dragon_egg*64)
-        - or: in_inv(minecraft:bedrock*64)
-      - and: in_inv(minecraft:piston*64)
-      - and: in_inv(minecraft:bedrock*64)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:dragon_egg
-    parent: root
-
-  - name: "DEBB_"
-    description: "Get a stack of dragon eggs"
-    id: debb_
-    task:
-      - or: in_inv(minecraft:dragon_egg*64)
-      - or: in_inv(minecraft:bedrock*64)
-    features: {display: "task", pop_up: true, chat: false, hidden: false}
-    icon: minecraft:dragon_egg
-    parent: root
