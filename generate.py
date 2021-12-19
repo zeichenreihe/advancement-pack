@@ -141,6 +141,8 @@ class Main:
             if "icon" not in advancement:
                 if "in_inv" in advancement["task"][0]:
                     advancement["icon"] = advancement["task"][0]["in_inv"]
+                    if isinstance(advancement["icon"], list):
+                        advancement["icon"] = list(advancement["icon"][0].keys())[0]
 
             ctr = 0
             if "criteria" not in advancement:
