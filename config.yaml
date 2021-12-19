@@ -1,5 +1,11 @@
 # vim: set noai nosi ts=2 sw=2 syntax=yaml
 
+#   frame: "task"
+#   frame: "goal"
+#   frame: "challenge"
+#   pop_up: true
+#   chat: true
+#   hidden: false
 
 - pack:
     version: 1.16.5
@@ -10,7 +16,7 @@
     description: "A story underground"
     id: franz_advancements:mining
     task:
-      - in_inv: minecraft:wooden_pickaxe
+      in_inv: minecraft:wooden_pickaxe
     icon: minecraft:netherite_pickaxe
     nbt:
       Enchantments:
@@ -21,25 +27,104 @@
   - name: "Stone Age"
     description: ""
     id: stone_age
-    task:
-      - trigger: minecraft:inventory_changed
-        conditions:
-          items:
-            - item: minecraft:bedrock
-              count: 64
-      - in_inv: minecraft:bedrock
-      - in_inv:
-        - minecraft:bedrock: 64
-        - minecraft:cobblestone: 32
-        - minecraft:stone_stairs
-      - break_tool: minecraft:stone_pickaxe
-    icon: minecraft:wooden_pickaxe
     parent: root
-#   frame: "task"
-#   pop_up: true
-#   chat: true
-#   hidden: false
+    task:
+      in_inv: minecraft:cobblestone
+    icon: minecraft:wooden_pickaxe
 
+  - name: "Getting an upgrade"
+    description: "Get a stone pick"
+    id: getting_an_upgrade
+    parent: stone_age
+    task:
+      in_inv: minecraft:stone_pickaxe
+
+  - name: "Aww it broke"
+    description: "Break a stone pick"
+    id: aww_it_broke
+    parent: stone_age
+    task:
+      break_tool: minecraft:stone_pickaxe
+    icon: minecraft:stick
+
+  - name: "Caveman"
+    description: "Enter a cave"
+    id: caveman
+    parent: stone_age
+    task:
+      break_tool: minecraft:elytra # XXX
+    icon: minecraft:stone
+
+  - name: "Stone Champion"
+    description: "Get all stone tools"
+    id: stone_champion
+    parent: getting_an_upgrade
+    task:
+      in_inv:
+        - minecraft:stone_pickaxe
+        - minecraft:stone_shovel
+        - minecraft:stone_axe
+        - minecraft:stone_hoe
+        - minecraft:stone_sword
+    icon: minecraft:stone_shovel
+  
+  - name: "Coal Manager"
+    description: "Get coal"
+    id: coal_manager
+    parent: getting_an_upgrade
+    task:
+      in_inv: minecraft:coal
+
+  - name: "Raw Hardware"
+    description: "Get iron"
+    id: raw_hardware
+    parent: getting_an_upgrade
+    task:
+      in_inv: minecraft:iron_ore
+
+  - name: "Also Broke"
+    description: "Break all stone tools"
+    id: also_broke
+    parent: stone_champion
+    task:
+      - break_tool: minecraft:stone_pickaxe
+      - break_tool: minecraft:stone_shovel
+      - break_tool: minecraft:stone_axe
+      - break_tool: minecraft:stone_hoe
+      - break_tool: minecraft:stone_sword
+    icon: minecraft:stick
+
+  - name: "A lot to mine"
+    description: "A chest of cobble might help"
+    id: a_lot_to_mine
+    parent: stone_champion
+    task:
+      in_inv:
+        - minecraft:cobblestone: 1728
+    frame: "goal"
+
+  - name: "Flint"
+    description: "Get some flint"
+    id: flint
+    parent: stone_champion
+    task:
+      in_inv: minecraft:flint
+
+  - name: "Burning"
+    description: "Get some flint and steel"
+    id: burning
+    parent: flint
+    task:
+      in_inv: minecraft:flint_and_steel
+
+  - name: "Lucky Man"
+    description: "Maybe you need a bit more.."
+    id: lucky_man
+    parent: flint
+    task:
+      in_inv:
+        - minecraft:flint: 64
+   
 - category:
   - root: "Redstone"
     description: "A story full of blockupdates and blockevents"
@@ -47,17 +132,30 @@
     task:
       - in_inv: minecraft:redstone
     icon: "minecraft:sticky_piston"
-    background: "minecraft:textures/block/redstone_ore.png"
+    background: redstone_ore
 
   - name: "Compact it"
     description: "Get a rs block!"
     id: compact_it
-    task:
-      - - in_inv: minecraft:redstone_ore
-        - break_tool: minecraft:stone_sword
-      - - in_inv: minecraft:redstone_block
-        - break_tool: minecraft:netherite_pickaxe
-    icon: minecraft:redstone_ore
     parent: root
-    hidden: true
+    task:
+      in_inv: minecraft:redstone_block
+
+  - name: "Shiny"
+    description: "Use a silktouch pick!"
+    id: shiny
+    parent: root
+    task:
+      in_inv: minecraft:redstone_ore
+
+  - name: "DEBB"
+    description: "Set a stack of dragon eggs"
+    id: debb
+    parent: root
+    task:
+      in_inv:
+        - minecraft:dragon_egg: 64
+
+
+
 
