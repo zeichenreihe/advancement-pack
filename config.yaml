@@ -23,7 +23,6 @@
         - lvl: 1
         - id: "minecraft:mending"
     background: "minecraft:textures/gui/advancements/backgrounds/stone.png"
-
   - name: "Stone Age"
     description: ""
     id: stone_age
@@ -31,14 +30,12 @@
     task:
       in_inv: minecraft:cobblestone
     icon: minecraft:wooden_pickaxe
-
   - name: "Getting an upgrade"
     description: "Get a stone pick"
     id: getting_an_upgrade
     parent: stone_age
     task:
       in_inv: minecraft:stone_pickaxe
-
   - name: "Aww it broke"
     description: "Break a stone pick"
     id: aww_it_broke
@@ -46,7 +43,6 @@
     task:
       break_tool: minecraft:stone_pickaxe
     icon: minecraft:stick
-
   - name: "Caveman"
     description: "Enter a cave"
     id: caveman
@@ -54,7 +50,6 @@
     task:
       break_tool: minecraft:elytra # XXX
     icon: minecraft:stone
-
   - name: "Stone Champion"
     description: "Get all stone tools"
     id: stone_champion
@@ -67,21 +62,18 @@
         - minecraft:stone_hoe
         - minecraft:stone_sword
     icon: minecraft:stone_shovel
-  
   - name: "Coal Manager"
     description: "Get coal"
     id: coal_manager
     parent: getting_an_upgrade
     task:
       in_inv: minecraft:coal
-
   - name: "Raw Hardware"
     description: "Get iron"
     id: raw_hardware
     parent: getting_an_upgrade
     task:
       in_inv: minecraft:iron_ore
-
   - name: "Also Broke"
     description: "Break all stone tools"
     id: also_broke
@@ -93,7 +85,6 @@
       - break_tool: minecraft:stone_hoe
       - break_tool: minecraft:stone_sword
     icon: minecraft:stick
-
   - name: "A lot to mine"
     description: "A chest of cobble might help"
     id: a_lot_to_mine
@@ -102,21 +93,18 @@
       in_inv:
         - minecraft:cobblestone: 1728
     frame: "goal"
-
   - name: "Flint"
     description: "Get some flint"
     id: flint
     parent: stone_champion
     task:
       in_inv: minecraft:flint
-
   - name: "Burning"
     description: "Get some flint and steel"
     id: burning
     parent: flint
     task:
       in_inv: minecraft:flint_and_steel
-
   - name: "Lucky Man"
     description: "Maybe you need a bit more.."
     id: lucky_man
@@ -124,7 +112,119 @@
     task:
       in_inv:
         - minecraft:flint: 64
-   
+  - name: "Stone Destroyer"
+    description: "have a chest of stone in the inv" #XXX
+    id: stone_destroyer
+    parent: a_lot_to_mine
+    task:
+      in_inv:
+        - minecraft:stone: 1728
+  - name: "Stone Expert"
+    description: "fill the complete inv with stone" #XXX
+    id: stone_expert
+    parent: stone_destroyer
+    task:
+      in_inv:
+        - minecraft:stone: 2304
+  - name: "Coal Miner"
+    description: "64 minecraft:coal"
+    id: coal_miner
+    parent: coal_manager
+    task:
+      in_inv:
+        - minecraft:coal: 64
+    icon: minecraft:coal_block
+  - name: "Coal Expert"
+    description: "64 minecraft:coal_block"
+    id: coal_expert
+    parent: coal_miner
+    task:
+      in_inv:
+        - minecraft:coal_block: 64
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+  - name: ""
+    description: ""
+    id: 
+    parent:
+    task:
+      in_inv:
+
+
+
+
+
+
+
+
+
+
+
+
 - category:
   - root: "Redstone"
     description: "A story full of blockupdates and blockevents"
